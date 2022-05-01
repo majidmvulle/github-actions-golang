@@ -14,7 +14,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3.1.0
       - name: Run tests and generate coverage
-        run: go test -race -coverprofile=./.coverage/reports/coverage.out -covermode=atomic
+        run:  mkdir -p /home/runner/coverage/reports && go test -race -coverprofile=/home/runner/coverage/reports/coverage.out -covermode=atomic
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
