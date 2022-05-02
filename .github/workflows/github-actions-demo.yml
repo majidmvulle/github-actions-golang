@@ -74,7 +74,9 @@ jobs:
         run: GOOS=linux GOARCH=amd64 go build -o ${{ steps.build.outputs.file_name }} main.go
 
       - name: Zip the binary
-        run: zip ${{ steps.build.outputs.file_name }}.zip ${{ steps.build.outputs.file_name }}
+        run: | 
+          zip ${{ steps.build.outputs.file_name }}.zip ${{ steps.build.outputs.file_name }}
+          ls ${{ steps.build.outputs.file_name }}.zip
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1

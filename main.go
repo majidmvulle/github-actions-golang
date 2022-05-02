@@ -13,8 +13,8 @@ func Handler(anApp app.App) error {
 		return fmt.Errorf("both A and B should be higher than 0")
 	}
 
-	fmt.Printf("Sum of %d and %d is: %d\n", anApp.A, anApp.B, app.AddTwoNumbers(anApp))
-	fmt.Printf("Difference of %d and %d is: %d\n", anApp.A, anApp.B, app.SubtractTwoNumbers(anApp))
+	fmt.Printf("(Sum of %d and %d is: %d\n)", anApp.A, anApp.B, app.AddTwoNumbers(anApp))
+	fmt.Printf("(Difference of %d and %d is: %d\n)", anApp.A, anApp.B, app.SubtractTwoNumbers(anApp))
 
 	return nil
 }
