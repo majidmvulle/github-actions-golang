@@ -39,8 +39,6 @@ jobs:
   deploy-to-aws-lambda:
     runs-on: ubuntu-latest
     permissions:
-      packages: write
-      contents: read
       id-token: write
     steps:
       - name: Check out repository code
@@ -67,6 +65,13 @@ jobs:
 
       - name: Generate the binary
         run: GOOS=linux GOARCH=amd64 go build -o ${{ steps.build.outputs.file_name }} main.go
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::975962760978:role/GithubActionsLambdaDeployRole
+          role-session-name: githubactionslambdadeployrole
+          aws-region: me-south-1
 
       - name: Upload the binary to AWS Lambda
         env:
