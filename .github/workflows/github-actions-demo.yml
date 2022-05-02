@@ -52,17 +52,15 @@ jobs:
           go-version: '1.18'
           check-latest: true
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: me-south-1
-
       - name: Generate the binary
         run: GOOS=linux GOARCH=amd64 go build -o ${{ env.build_path }}/build_${{ env.hash }} main.go
 
       - name: Upload the binary to AWS Lambda
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: me-south-1
+          AWS_DEFAULT_OUTPUT: json
         run: |
           zip ${{ github.workspace }}/.build/build_${{ env.hash }}.zip ${{ github.workspace }}/.build/build_${{ env.git_hash }}
           aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ github.workspace }}/.build/build_${{ env.git_hash }}.zip
