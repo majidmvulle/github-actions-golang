@@ -75,7 +75,7 @@ jobs:
 
       - name: Zip the binary
         run: | 
-          zip main.zip 
+          zip main.zip main 
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
