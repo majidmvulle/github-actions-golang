@@ -85,6 +85,10 @@ jobs:
           role-session-name: githubactionslambdadeployrole
           aws-region: me-south-1
 
+      - name: Upload the binary to S3
+        run: |
+          aws s3 cp ${{ steps.build.outputs.file_name }}.zip s3://testtaskingtask/github-actions
+
       - name: Upload the binary to AWS Lambda
         run: |
           aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ steps.build.outputs.file_name }}.zip
