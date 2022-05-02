@@ -40,6 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      contents: read
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -66,6 +67,9 @@ jobs:
       - name: Generate the binary
         run: GOOS=linux GOARCH=amd64 go build -o ${{ steps.build.outputs.file_name }} main.go
 
+      - name: Zip the binary
+        run: zip ${{ steps.build.outputs.file_name }}.zip ${{ steps.build.outputs.file_name }}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -80,5 +84,4 @@ jobs:
           AWS_DEFAULT_REGION: me-south-1
           AWS_DEFAULT_OUTPUT: json
         run: |
-          zip ${{ steps.build.outputs.file_name }}.zip ${{ steps.build.outputs.file_name }}
           aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ steps.build.outputs.file_name }}.zip
