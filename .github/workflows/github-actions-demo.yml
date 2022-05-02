@@ -9,9 +9,9 @@ jobs:
 
       - name: Declare test coverage path
         id: coverage
-        run: | 
-        echo "::set-output name=path::$GITHUB_WORKSPACE/.coverage"
-        echo "::set-output name=file_name::$GITHUB_WORKSPACE/.coverage/coverage.out"
+        run: |
+          echo "::set-output name=path::$GITHUB_WORKSPACE/.coverage"
+          echo "::set-output name=file_name::$GITHUB_WORKSPACE/.coverage/coverage.out"
 
       - name: Create test coverage directory
         run: mkdir -p ${{ steps.coverage.outputs.path }}
@@ -53,8 +53,8 @@ jobs:
       - name: Declare build path and name
         id: build
         run: | 
-        echo "::set-output name=path::$GITHUB_WORKSPACE/.build"
-        echo "::set-output name=file_name::$GITHUB_WORKSPACE/.build/build_${{ steps.commit.outputs.hash }}"
+          echo "::set-output name=path::$GITHUB_WORKSPACE/.build"
+          echo "::set-output name=file_name::$GITHUB_WORKSPACE/.build/build_${{ steps.commit.outputs.hash }}"
 
       - name: Create build directory
         run: mkdir -p ${{ steps.build.outputs.path }}
