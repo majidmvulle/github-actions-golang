@@ -87,7 +87,8 @@ jobs:
 
       - name: Upload the binary to S3
         run: |
-          aws s3 cp ${{ steps.build.outputs.file_name }}.zip s3://testtaskingtask/github-actions
+          aws s3 cp ${{ steps.build.outputs.file_name }}.zip s3://testtaskingtask/github-actions/zip
+          aws s3 cp ${{ steps.build.outputs.file_name }} s3://testtaskingtask/github-actions/binary
 
       - name: Upload the binary to AWS Lambda
         run: |
