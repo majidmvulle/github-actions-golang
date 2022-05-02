@@ -84,4 +84,4 @@ jobs:
           AWS_DEFAULT_REGION: me-south-1
           AWS_DEFAULT_OUTPUT: json
         run: |
-          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ steps.build.outputs.file_name }}.zip
+          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ steps.build.outputs.file_name }}.zip --profile githubactionslambdadeployrole
