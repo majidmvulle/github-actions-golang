@@ -7,8 +7,14 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
+      - name: Declare test coverage path
+        id: coverage
+        run: | 
+        echo "::set-output name=path::$GITHUB_WORKSPACE/.coverage"
+        echo "::set-output name=file_name::$GITHUB_WORKSPACE/.coverage/coverage.out"
+
       - name: Create test coverage directory
-        run: mkdir -p ${{ github.workspace }}/.coverage
+        run: mkdir -p ${{ steps.coverage.outputs.path }}
 
       - name: Setup Go environment
         uses: actions/setup-go@v3.0.0
@@ -20,13 +26,13 @@ jobs:
         uses: golangci/golangci-lint-action@v3.1.0
 
       - name: Run tests and generate coverage
-        run:  go test ./... -race -coverprofile=${{ github.workspace }}/.coverage/coverage.out -covermode=atomic
+        run:  go test ./... -race -coverprofile=${{ steps.coverage.outputs.file_name }} -covermode=atomic
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: true
-          files: ${{ github.workspace }}/.coverage/coverage.out
+          files: ${{ steps.coverage.outputs.file_name }}
           flags: unittests
           verbose: true
 
@@ -40,11 +46,18 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Get Hash
-        run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
+      - name: Declare commit hash
+        id: commit
+        run: echo "::set-output name=hash::$(git rev-parse --short HEAD)"
+
+      - name: Declare build path and name
+        id: build
+        run: | 
+        echo "::set-output name=path::$GITHUB_WORKSPACE/.build"
+        echo "::set-output name=file_name::$GITHUB_WORKSPACE/.build/build_${{ steps.commit.outputs.hash }}"
 
       - name: Create build directory
-        run: mkdir -p ${{ github.workspace }}/.build
+        run: mkdir -p ${{ steps.build.outputs.path }}
 
       - name: Setup Go environment
         uses: actions/setup-go@v3.0.0
@@ -53,7 +66,7 @@ jobs:
           check-latest: true
 
       - name: Generate the binary
-        run: GOOS=linux GOARCH=amd64 go build -o ${{ env.build_path }}/build_${{ env.hash }} main.go
+        run: GOOS=linux GOARCH=amd64 go build -o ${{ steps.build.outputs.file_name }} main.go
 
       - name: Upload the binary to AWS Lambda
         env:
@@ -62,5 +75,5 @@ jobs:
           AWS_DEFAULT_REGION: me-south-1
           AWS_DEFAULT_OUTPUT: json
         run: |
-          zip ${{ github.workspace }}/.build/build_${{ env.hash }}.zip ${{ github.workspace }}/.build/build_${{ env.git_hash }}
-          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ github.workspace }}/.build/build_${{ env.git_hash }}.zip
+          zip ${{ steps.build.outputs.file_name }}.zip ${{ steps.build.outputs.file_name }}
+          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ steps.build.outputs.file_name }}.zip
