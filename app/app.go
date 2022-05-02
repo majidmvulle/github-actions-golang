@@ -1,9 +1,14 @@
 package app
 
-func AddTwoNumbers(first int, second int) int {
-	return first + second
+type App struct {
+	A int
+	B int
 }
 
-func SubtractTwoNumbers(first int, second int) int {
-	return first - second
+func AddTwoNumbers(app App) int {
+	return app.A + app.B
+}
+
+func SubtractTwoNumbers(app App) int {
+	return app.A - app.B
 }
