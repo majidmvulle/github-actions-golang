@@ -7,17 +7,8 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Get Hash
-        id: hash
-        run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")"
-
       - name: Create test coverage directory
-        id: coverage_path
-        run: mkdir -p $GITHUB_WORKSPACE/.coverage
-
-      - name: Create build directory
-        id: build_path
-        run: mkdir -p $GITHUB_WORKSPACE/.build
+        run: mkdir -p ${{ github.workspace }}/.coverage
 
       - name: Setup Go environment
         uses: actions/setup-go@v3.0.0
@@ -29,13 +20,13 @@ jobs:
         uses: golangci/golangci-lint-action@v3.1.0
 
       - name: Run tests and generate coverage
-        run:  go test ./... -race -coverprofile=${{ env.coverage_path }}/coverage.out -covermode=atomic
+        run:  go test ./... -race -coverprofile=${{ github.workspace }}/.coverage/coverage.out -covermode=atomic
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: true
-          files: ${{ env.coverage_path }}/coverage.out
+          files: ${{ github.workspace }}/.coverage/coverage.out
           flags: unittests
           verbose: true
 
@@ -46,9 +37,14 @@ jobs:
       contents: read
       id-token: write
     steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
       - name: Get Hash
-        id: hash
-        run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")"
+        run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_ENV
+
+      - name: Create build directory
+        run: mkdir -p ${{ github.workspace }}/.build
 
       - name: Setup Go environment
         uses: actions/setup-go@v3.0.0
@@ -68,5 +64,5 @@ jobs:
 
       - name: Upload the binary to AWS Lambda
         run: |
-          zip ${{ env.build_path }}/build_${{ env.hash }}.zip ${{ env.build_path }}/build_${{ env.hash }}
-          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ env.build_path }}/build_${{ env.hash }}.zip
+          zip ${{ github.workspace }}/.build/build_${{ env.hash }}.zip ${{ github.workspace }}/.build/build_${{ env.git_hash }}
+          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ github.workspace }}/.build/build_${{ env.git_hash }}.zip
