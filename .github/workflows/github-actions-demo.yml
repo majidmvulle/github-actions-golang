@@ -71,12 +71,11 @@ jobs:
         run: go mod tidy
 
       - name: Generate the binary
-        run: GOOS=linux GOARCH=amd64 go build -o ${{ steps.build.outputs.file_name }} main.go
+        run: GOOS=linux GOARCH=amd64 go build -o main main.go
 
       - name: Zip the binary
         run: | 
-          zip ${{ steps.build.outputs.file_name }}.zip ${{ steps.build.outputs.file_name }}
-          ls ${{ steps.build.outputs.file_name }}.zip
+          zip main.zip 
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -87,9 +86,8 @@ jobs:
 
       - name: Upload the binary to S3
         run: |
-          aws s3 cp ${{ steps.build.outputs.file_name }}.zip s3://testtaskingtask/github-actions/zip
-          aws s3 cp ${{ steps.build.outputs.file_name }} s3://testtaskingtask/github-actions/binary
+          aws s3 cp main.zip s3://testtaskingtask/github-actions/zip
 
       - name: Upload the binary to AWS Lambda
         run: |
-          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ steps.build.outputs.file_name }}.zip
+          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://main.zip
