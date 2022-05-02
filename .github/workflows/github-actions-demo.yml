@@ -6,19 +6,50 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+
+      - name: Get Hash
+        id: hash
+        run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_HASH
+
+      - name: Create test coverage directory
+        id: coverage_path
+        run: mkdir -p $GITHUB_WORKSPACE/.coverage
+
+      - name: Create build directory
+        id: build_path
+        run: mkdir -p $GITHUB_WORKSPACE/.build
+
       - name: Setup Go environment
         uses: actions/setup-go@v3.0.0
         with:
           go-version: '1.18'
           check-latest: true
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: me-south-1
+
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v3.1.0
+
       - name: Run tests and generate coverage
-        run:  mkdir -p /home/runner/coverage/reports && go test ./... -race -coverprofile=/home/runner/coverage/reports/coverage.out -covermode=atomic
+        run:  go test ./... -race -coverprofile=${{ env.coverage_path }}/coverage.out -covermode=atomic
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
           fail_ci_if_error: true
-          files: /home/runner/coverage/reports/coverage.out
+          files: ${{ env.coverage_path }}/coverage.out
           flags: unittests
           verbose: true
+
+      - name: Generate the binary
+        run: GOOS=linux GOARCH=amd64 go build -o ${{ env.build_path }}/build_${{ env.hash }} main.go
+
+      - name: Upload the binary to AWS Lambda
+        run: |
+          zip ${{ env.build_path }}/build_${{ env.hash }}.zip ${{ env.build_path }}/build_${{ env.hash }}
+          aws lambda update-function-code --function-name=githubActions --zip-file=fileb://${{ env.build_path }}/build_${{ env.hash }}.zip
