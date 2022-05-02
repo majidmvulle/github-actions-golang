@@ -56,7 +56,7 @@ jobs:
         id: build
         run: | 
           echo "::set-output name=path::$GITHUB_WORKSPACE/.build"
-          echo "::set-output name=file_name::$GITHUB_WORKSPACE/.build/build_${{ steps.commit.outputs.hash }}"
+          echo "::set-output name=file_name::$GITHUB_WORKSPACE/.build/main"
 
       - name: Create build directory
         run: mkdir -p ${{ steps.build.outputs.path }}
