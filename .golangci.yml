@@ -22,7 +22,6 @@ linters:
     - goconst
     - godot
     - godox
-    - goerr113
     - ifshort
     - importas
     - lll
@@ -39,6 +38,7 @@ linters:
     - scopelint
     - forbidigo
     - gofumpt
+    - goerr113
 
   # Enable presets.
   # https://golangci-lint.run/usage/linters
